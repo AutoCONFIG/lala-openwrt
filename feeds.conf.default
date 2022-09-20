@@ -1,5 +1,5 @@
-src-git-full packages https://git.openwrt.org/feed/packages.git
-src-git-full luci https://git.openwrt.org/project/luci.git
+src-git-full packages https://github.com/AutoCONFIG/lala-openwrt-packages.git
+src-git-full luci https://github.com/AutoCONFIG/lala-openwrt-luci.git
 src-git-full routing https://git.openwrt.org/feed/routing.git
 src-git-full telephony https://git.openwrt.org/feed/telephony.git
 #src-git-full video https://github.com/openwrt/video.git
