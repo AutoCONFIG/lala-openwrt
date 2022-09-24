@@ -7,14 +7,14 @@
 # <https://github.com/KFERMercer/OpenWrt-CI>
 #
 
-name: Build-x86-64-Basic
+name: Build-master
 
 on:
   push:
     branches: 
       - master
-  schedule:
-    - cron: 0 13 * * 5
+  #schedule:
+  #  - cron: 0 13 * * 5
   release:
     types: [published]
 
