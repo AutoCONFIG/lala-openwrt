@@ -13,8 +13,8 @@ on:
   push:
     branches: 
       - openwrt-18.06
-  schedule:
-    - cron: push
+  #schedule:
+  #  - cron: 0 13 * * 5
   release:
     types: [published]
 
