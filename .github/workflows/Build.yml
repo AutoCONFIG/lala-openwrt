@@ -1,0 +1,230 @@
+#
+# This is free software, lisence use MIT.
+# 
+# Copyright (C) 2019 P3TERX <https://p3terx.com>
+# Copyright (C) 2020 KFERMercer <KFER.Mercer@gmail.com>
+# 
+# <https://github.com/KFERMercer/OpenWrt-CI>
+#
+
+name: Build-openwrt-19.07
+
+on:
+  push:
+    branches: 
+      - openwrt-19.07
+  #schedule:
+  #  - cron: 0 13 * * 5
+  release:
+    types: [published]
+
+jobs:
+
+  build_openwrt:
+
+    name: Build OpenWrt firmware
+
+    runs-on: ubuntu-latest
+
+    if: github.event.repository.owner.id == github.event.sender.id
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: openwrt-19.07
+
+      - name: Space cleanup
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          docker rmi `docker images -q`
+          sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
+          sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* adoptopenjdk* mysql* php* mongodb* dotnet* moby* snapd* || true
+          sudo -E apt-get update
+          sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 python2.7 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler g++-multilib antlr3 gperf wget curl swig rsync
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get clean
+
+          # sudo mkdir -p -m 777 /mnt/openwrt/bin /mnt/openwrt/build_dir/host /mnt/openwrt/build_dir/hostpkg /mnt/openwrt/dl /mnt/openwrt/feeds /mnt/openwrt/staging_dir
+          # ln -s /mnt/openwrt/bin ./bin
+          # mkdir -p ./build_dir
+          # ln -s -f /mnt/openwrt/build_dir/host ./build_dir/host
+          # ln -s -f /mnt/openwrt/build_dir/hostpkg ./build_dir/hostpkg
+          # ln -s /mnt/openwrt/dl ./dl
+          # ln -s /mnt/openwrt/feeds ./feeds
+          # ln -s /mnt/openwrt/staging_dir ./staging_dir
+
+          df -h
+
+      - name: Update feeds
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Generate configuration file
+        run: |
+          rm -f ./.config*
+          touch ./.config
+
+          #
+          # 在 cat >> .config <<EOF 到 EOF 之间粘贴你的编译配置, 需注意缩进关系
+          # 例如:
+
+          cat >> .config <<EOF
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+          CONFIG_GNUTLS_ALPN=y
+          CONFIG_GNUTLS_ANON=y
+          CONFIG_GNUTLS_DTLS_SRTP=y
+          CONFIG_GNUTLS_HEARTBEAT=y
+          CONFIG_GNUTLS_OCSP=y
+          CONFIG_GNUTLS_PSK=y
+          CONFIG_LUCI_LANG_zh_Hans=y
+          CONFIG_OPENSSL_ENGINE=y
+          CONFIG_OPENSSL_OPTIMIZE_SPEED=y
+          CONFIG_OPENSSL_WITH_ASM=y
+          CONFIG_OPENSSL_WITH_CHACHA_POLY1305=y
+          CONFIG_OPENSSL_WITH_CMS=y
+          CONFIG_OPENSSL_WITH_DEPRECATED=y
+          CONFIG_OPENSSL_WITH_ERROR_MESSAGES=y
+          CONFIG_OPENSSL_WITH_PSK=y
+          CONFIG_OPENSSL_WITH_SRP=y
+          CONFIG_OPENSSL_WITH_TLS13=y
+          CONFIG_PACKAGE_attr=y
+          CONFIG_PACKAGE_avahi-dbus-daemon=y
+          CONFIG_PACKAGE_block-mount=y
+          CONFIG_PACKAGE_blockd=y
+          CONFIG_PACKAGE_cgi-io=y
+          CONFIG_PACKAGE_dbus=y
+          CONFIG_PACKAGE_kmod-fs-autofs4=y
+          CONFIG_PACKAGE_kmod-shortcut-fe=y
+          CONFIG_PACKAGE_kmod-shortcut-fe-cm=y
+          CONFIG_PACKAGE_kmod-tcp-bbr=y
+          CONFIG_PACKAGE_libatomic=y
+          CONFIG_PACKAGE_libattr=y
+          CONFIG_PACKAGE_libavahi-client=y
+          CONFIG_PACKAGE_libavahi-dbus-support=y
+          CONFIG_PACKAGE_libcap=y
+          CONFIG_PACKAGE_libdaemon=y
+          CONFIG_PACKAGE_libdbus=y
+          CONFIG_PACKAGE_libexpat=y
+          CONFIG_PACKAGE_libgmp=y
+          CONFIG_PACKAGE_libgnutls=y
+          CONFIG_PACKAGE_libiwinfo=y
+          CONFIG_PACKAGE_libiwinfo-lua=y
+          CONFIG_PACKAGE_liblua=y
+          CONFIG_PACKAGE_liblucihttp=y
+          CONFIG_PACKAGE_liblucihttp-lua=y
+          CONFIG_PACKAGE_libncurses=y
+          CONFIG_PACKAGE_libnettle=y
+          CONFIG_PACKAGE_libopenssl=y
+          CONFIG_PACKAGE_libpopt=y
+          CONFIG_PACKAGE_libreadline=y
+          CONFIG_PACKAGE_libtasn1=y
+          CONFIG_PACKAGE_libtirpc=y
+          CONFIG_PACKAGE_libubus-lua=y
+          CONFIG_PACKAGE_lua=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_luci-app-opkg=y
+          CONFIG_PACKAGE_luci-app-samba4=y
+          CONFIG_PACKAGE_luci-app-turboacc=y
+          CONFIG_PACKAGE_luci-app-upnp=y
+          CONFIG_PACKAGE_luci-base=y
+          CONFIG_PACKAGE_luci-compat=y
+          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-firewall-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-opkg-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-samba4-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-turboacc-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-upnp-zh-cn=y
+          CONFIG_PACKAGE_luci-lib-ip=y
+          CONFIG_PACKAGE_luci-lib-jsonc=y
+          CONFIG_PACKAGE_luci-lib-nixio=y
+          CONFIG_PACKAGE_luci-mod-admin-full=y
+          CONFIG_PACKAGE_luci-mod-network=y
+          CONFIG_PACKAGE_luci-mod-status=y
+          CONFIG_PACKAGE_luci-mod-system=y
+          CONFIG_PACKAGE_luci-proto-ipv6=y
+          CONFIG_PACKAGE_luci-proto-ppp=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_miniupnpd=y
+          CONFIG_PACKAGE_rpcd=y
+          CONFIG_PACKAGE_rpcd-mod-file=y
+          CONFIG_PACKAGE_rpcd-mod-iwinfo=y
+          CONFIG_PACKAGE_rpcd-mod-luci=y
+          CONFIG_PACKAGE_rpcd-mod-rrdns=y
+          CONFIG_PACKAGE_samba4-libs=y
+          CONFIG_PACKAGE_samba4-server=y
+          CONFIG_PACKAGE_terminfo=y
+          CONFIG_PACKAGE_uhttpd=y
+          CONFIG_PACKAGE_wsdd2=y
+          CONFIG_PACKAGE_zlib=y
+          CONFIG_SAMBA4_SERVER_AVAHI=y
+          CONFIG_SAMBA4_SERVER_NETBIOS=y
+          CONFIG_SAMBA4_SERVER_VFS=y
+          EOF
+
+          #
+          # ===============================================================
+          # 
+
+          sed -i 's/^[ \t]*//g' ./.config
+          make defconfig
+
+      - name: Make download
+        run: |
+          make download -j8 || make download -j1 V=s
+          rm -rf $(find ./dl/ -size -1024c)
+          df -h
+
+      - name: Compile firmware
+        run: |
+          make -j$(nproc) || make -j1 V=s
+          echo "======================="
+          echo "Space usage:"
+          echo "======================="
+          df -h
+          echo "======================="
+          du -h ./ --max-depth=1
+          du -h /mnt/openwrt/ --max-depth=1 || true
+
+      - name: Prepare artifact
+        run: |
+          mkdir -p ./artifact/firmware
+          mkdir -p ./artifact/package
+          mkdir -p ./artifact/buildinfo
+          rm -rf $(find ./bin/targets/ -type d -name "packages")
+          cp -rf $(find ./bin/targets/ -type f) ./artifact/firmware/
+          cp -rf $(find ./bin/packages/ -type f -name "*.ipk") ./artifact/package/
+          cp -rf $(find ./bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") ./artifact/buildinfo/
+
+      - name: Deliver buildinfo
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenWrt_buildinfo
+          path: ./artifact/buildinfo/
+
+      - name: Deliver package
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenWrt_package
+          path: ./artifact/package/
+
+      - name: Deliver firmware
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenWrt_firmware
+          path: ./bin/targets/
+
+      - name: Upload release asset
+        if: github.event == 'release'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.YOURTOKEN }}
+          file: ./artifact/firmware/*
+          tag: ${{ github.ref }}
+          file_glob: true
