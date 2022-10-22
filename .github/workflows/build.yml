@@ -26,7 +26,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    if: github.event.repository.owner.id == github.event.sender.id
+    if: github.event.repository.owner.id == github.event.sender.id || ! github.event.sender.id
 
     steps:
 
@@ -43,18 +43,9 @@ jobs:
           sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
           sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* adoptopenjdk* mysql* php* mongodb* dotnet* moby* snapd* || true
           sudo -E apt-get update
-          sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 python2.7 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler g++-multilib antlr3 gperf wget curl swig rsync
+          sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf swig
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get clean
-
-          # sudo mkdir -p -m 777 /mnt/openwrt/bin /mnt/openwrt/build_dir/host /mnt/openwrt/build_dir/hostpkg /mnt/openwrt/dl /mnt/openwrt/feeds /mnt/openwrt/staging_dir
-          # ln -s /mnt/openwrt/bin ./bin
-          # mkdir -p ./build_dir
-          # ln -s -f /mnt/openwrt/build_dir/host ./build_dir/host
-          # ln -s -f /mnt/openwrt/build_dir/hostpkg ./build_dir/hostpkg
-          # ln -s /mnt/openwrt/dl ./dl
-          # ln -s /mnt/openwrt/feeds ./feeds
-          # ln -s /mnt/openwrt/staging_dir ./staging_dir
 
           df -h
 
@@ -62,15 +53,37 @@ jobs:
         run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+          git clone https://github.com/AutoCONFIG/minieap-openwrt.git package/minieap-openwrt
 
       - name: Generate configuration file
         run: |
+          cat >> package/base-files/files/etc/minieap.conf <<EOF
+          username=2013308126
+          password=232810
+          nic=eth1
+          module=rjv3
+          daemonize=0
+          if-impl=sockraw
+          max-fail=3
+          max-retries=3
+          no-auto-reauth=0
+          wait-after-fail=30
+          stage-timeout=5
+          auth-round=1
+          pid-file=/var/run/minieap.pid
+          log-file=/var/log/minieap.log
+          heartbeat=60
+          eap-bcast-addr=1
+          dhcp-type=2
+          service=internet
+          version-str=RG-SU For Linux V1.30
+          dhcp-script=
+          fake-serial=2105U0324A002926
+          max-dhcp-count=3
+          EOF
+          
           rm -f ./.config*
           touch ./.config
-
-          #
-          # 在 cat >> .config <<EOF 到 EOF 之间粘贴你的编译配置, 需注意缩进关系
-          # 例如:
 
           cat >> .config <<EOF
           CONFIG_TARGET_x86=y
@@ -96,7 +109,6 @@ jobs:
           CONFIG_PACKAGE_attr=y
           CONFIG_PACKAGE_avahi-dbus-daemon=y
           CONFIG_PACKAGE_block-mount=y
-          CONFIG_PACKAGE_blockd=y
           CONFIG_PACKAGE_cgi-io=y
           CONFIG_PACKAGE_dbus=y
           CONFIG_PACKAGE_firewall=y
@@ -104,7 +116,7 @@ jobs:
           CONFIG_PACKAGE_iptables-mod-fullconenat=y
           CONFIG_PACKAGE_iptables-nft=y
           # CONFIG_PACKAGE_jansson is not set
-          CONFIG_PACKAGE_kmod-fs-autofs4=y
+          CONFIG_PACKAGE_kmod-fast-classifier=y
           CONFIG_PACKAGE_kmod-ipt-conntrack=y
           CONFIG_PACKAGE_kmod-ipt-core=y
           CONFIG_PACKAGE_kmod-ipt-fullconenat=y
@@ -113,7 +125,6 @@ jobs:
           CONFIG_PACKAGE_kmod-nft-compat=y
           # CONFIG_PACKAGE_kmod-nft-fib is not set
           CONFIG_PACKAGE_kmod-shortcut-fe=y
-          CONFIG_PACKAGE_kmod-shortcut-fe-cm=y
           CONFIG_PACKAGE_kmod-tcp-bbr=y
           CONFIG_PACKAGE_libatomic=y
           CONFIG_PACKAGE_libattr=y
@@ -154,7 +165,10 @@ jobs:
           CONFIG_PACKAGE_luci-app-opkg=y
           CONFIG_PACKAGE_luci-app-samba4=y
           CONFIG_PACKAGE_luci-app-turboacc=y
+          CONFIG_PACKAGE_luci-app-turboacc_INCLUDE_SHORTCUT_FE=y
+          # CONFIG_PACKAGE_luci-app-turboacc_INCLUDE_SHORTCUT_FE_CM is not set
           CONFIG_PACKAGE_luci-app-upnp=y
+          CONFIG_PACKAGE_luci-app-vlmcsd=y
           CONFIG_PACKAGE_luci-base=y
           CONFIG_PACKAGE_luci-compat=y
           CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
@@ -163,6 +177,7 @@ jobs:
           CONFIG_PACKAGE_luci-i18n-samba4-zh-cn=y
           CONFIG_PACKAGE_luci-i18n-turboacc-zh-cn=y
           CONFIG_PACKAGE_luci-i18n-upnp-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-vlmcsd-zh-cn=y
           CONFIG_PACKAGE_luci-lib-base=y
           CONFIG_PACKAGE_luci-lib-ip=y
           CONFIG_PACKAGE_luci-lib-jsonc=y
@@ -174,6 +189,7 @@ jobs:
           CONFIG_PACKAGE_luci-proto-ipv6=y
           CONFIG_PACKAGE_luci-proto-ppp=y
           CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_minieap=y
           CONFIG_PACKAGE_miniupnpd-nftables=y
           # CONFIG_PACKAGE_nftables-json is not set
           CONFIG_PACKAGE_rpcd=y
@@ -187,6 +203,7 @@ jobs:
           # CONFIG_PACKAGE_ucode is not set
           CONFIG_PACKAGE_uhttpd=y
           CONFIG_PACKAGE_uhttpd-mod-ubus=y
+          CONFIG_PACKAGE_vlmcsd=y
           CONFIG_PACKAGE_wsdd2=y
           CONFIG_PACKAGE_xtables-nft=y
           CONFIG_PACKAGE_zlib=y
@@ -200,25 +217,25 @@ jobs:
           # ===============================================================
           # 
 
-          sed -i 's/^[ \t]*//g' ./.config
+          sed -i 's/^[ \t]*//g' ./.config package/base-files/files/etc/minieap.conf
           make defconfig
 
       - name: Make download
         run: |
-          make download -j8 || make download -j1 V=s
-          rm -rf $(find ./dl/ -size -1024c)
-          df -h
+          make download -j8
+          find dl -size -1024c -exec rm -f {} \;
 
       - name: Compile firmware
         run: |
-          make -j$(nproc) || make -j1 V=s
+          make -j$(nproc)
           echo "======================="
           echo "Space usage:"
           echo "======================="
           df -h
           echo "======================="
-          du -h ./ --max-depth=1
-          du -h /mnt/openwrt/ --max-depth=1 || true
+          du -h --max-depth=1 ./ --exclude=build_dir --exclude=bin
+          du -h --max-depth=1 ./build_dir
+          du -h --max-depth=1 ./bin
 
       - name: Prepare artifact
         run: |
