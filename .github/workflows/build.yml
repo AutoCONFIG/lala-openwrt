@@ -115,7 +115,6 @@ jobs:
           # CONFIG_PACKAGE_firewall4 is not set
           CONFIG_PACKAGE_iptables-mod-fullconenat=y
           CONFIG_PACKAGE_iptables-nft=y
-          # CONFIG_PACKAGE_jansson is not set
           CONFIG_PACKAGE_kmod-fast-classifier=y
           CONFIG_PACKAGE_kmod-ipt-conntrack=y
           CONFIG_PACKAGE_kmod-ipt-core=y
@@ -123,7 +122,6 @@ jobs:
           CONFIG_PACKAGE_kmod-ipt-nat=y
           CONFIG_PACKAGE_kmod-nf-ipt=y
           CONFIG_PACKAGE_kmod-nft-compat=y
-          # CONFIG_PACKAGE_kmod-nft-fib is not set
           CONFIG_PACKAGE_kmod-shortcut-fe=y
           CONFIG_PACKAGE_kmod-tcp-bbr=y
           CONFIG_PACKAGE_libatomic=y
@@ -156,7 +154,6 @@ jobs:
           CONFIG_PACKAGE_libtasn1=y
           CONFIG_PACKAGE_libtirpc=y
           CONFIG_PACKAGE_libubus-lua=y
-          # CONFIG_PACKAGE_libucode is not set
           CONFIG_PACKAGE_liburing=y
           CONFIG_PACKAGE_libxtables=y
           CONFIG_PACKAGE_lua=y
@@ -191,7 +188,6 @@ jobs:
           CONFIG_PACKAGE_luci-theme-bootstrap=y
           CONFIG_PACKAGE_minieap=y
           CONFIG_PACKAGE_miniupnpd-nftables=y
-          # CONFIG_PACKAGE_nftables-json is not set
           CONFIG_PACKAGE_rpcd=y
           CONFIG_PACKAGE_rpcd-mod-file=y
           CONFIG_PACKAGE_rpcd-mod-iwinfo=y
@@ -200,7 +196,6 @@ jobs:
           CONFIG_PACKAGE_samba4-libs=y
           CONFIG_PACKAGE_samba4-server=y
           CONFIG_PACKAGE_terminfo=y
-          # CONFIG_PACKAGE_ucode is not set
           CONFIG_PACKAGE_uhttpd=y
           CONFIG_PACKAGE_uhttpd-mod-ubus=y
           CONFIG_PACKAGE_vlmcsd=y
@@ -211,6 +206,20 @@ jobs:
           CONFIG_SAMBA4_SERVER_NETBIOS=y
           CONFIG_SAMBA4_SERVER_VFS=y
           CONFIG_SAMBA4_SERVER_WSDD2=y
+          CONFIG_PACKAGE_jansson=y
+          CONFIG_PACKAGE_kmod-nft-fib=y
+          CONFIG_PACKAGE_libucode=y
+          CONFIG_PACKAGE_nftables-json=y
+          CONFIG_PACKAGE_ucode=y
+          CONFIG_PACKAGE_ucode-mod-fs=y
+          # CONFIG_PACKAGE_ucode-mod-math is not set
+          # CONFIG_PACKAGE_ucode-mod-nl80211 is not set
+          # CONFIG_PACKAGE_ucode-mod-resolv is not set
+          # CONFIG_PACKAGE_ucode-mod-rtnl is not set
+          # CONFIG_PACKAGE_ucode-mod-struct is not set
+          CONFIG_PACKAGE_ucode-mod-ubus=y
+          CONFIG_PACKAGE_ucode-mod-uci=y
+          # CONFIG_PACKAGE_ucode-mod-uloop is not set
           EOF
 
           #
