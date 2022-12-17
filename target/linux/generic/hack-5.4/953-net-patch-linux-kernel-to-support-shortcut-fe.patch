@@ -12,7 +12,7 @@
  			       struct list_head *br_ip_list);
 --- a/include/linux/skbuff.h
 +++ b/include/linux/skbuff.h
-@@ -826,6 +826,10 @@
+@@ -828,6 +828,10 @@
  	__u8			scm_io_uring:1;
  	__u8			gro_skip:1;
  
