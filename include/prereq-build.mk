@@ -165,5 +165,4 @@ prereq: $(STAGING_DIR_HOST)/bin/mkhash
 
 # Install ldconfig stub
 $(eval $(call TestHostCommand,ldconfig-stub,Failed to install stub, \
-	touch $(STAGING_DIR_HOST)/bin/ldconfig && \
-	chmod +x $(STAGING_DIR_HOST)/bin/ldconfig))
+	$(LN) $(firstword $(wildcard /bin/true /usr/bin/true)) $(STAGING_DIR_HOST)/bin/ldconfig))
