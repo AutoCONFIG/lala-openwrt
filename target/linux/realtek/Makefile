@@ -25,8 +25,8 @@ DEFAULT_PACKAGES += \
 	ip-full \
 	kmod-gpio-button-hotplug \
 	kmod-ipt-offload \
-	ip6tables \
-	iptables \
+	ip6tables-zz-legacy \
+	iptables-zz-legacy \
 	odhcp6c \
 	tc-bpf \
 	uboot-envtools \
