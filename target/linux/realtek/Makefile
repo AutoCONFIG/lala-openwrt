@@ -20,12 +20,13 @@ include $(INCLUDE_DIR)/target.mk
 
 DEFAULT_PACKAGES += \
 	ethtool \
-	firewall4 \
+	firewall \
 	ip-bridge \
 	ip-full \
 	kmod-gpio-button-hotplug \
-	kmod-nft-offload \
-	nftables \
+	kmod-ipt-offload \
+	ip6tables \
+	iptables \
 	odhcp6c \
 	tc-bpf \
 	uboot-envtools \
