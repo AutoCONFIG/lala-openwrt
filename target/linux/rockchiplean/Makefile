@@ -2,8 +2,8 @@
 
 include $(TOPDIR)/rules.mk
 
-BOARD:=rockchip
-BOARDNAME:=Rockchip
+BOARD:=rockchiplean
+BOARDNAME:=RockchipLean
 FEATURES:=ext4 audio usb usbgadget display gpio fpu pci pcie rootfs-part boot-part squashfs
 SUBTARGETS:=armv8
 
