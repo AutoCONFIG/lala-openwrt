@@ -5,7 +5,7 @@
 define KernelPackage/drm-rockchip
   SUBMENU:=$(VIDEO_MENU)
   TITLE:=Rockchip DRM support
-  DEPENDS:=@TARGET_rockchip +kmod-backlight +kmod-drm-kms-helper \
+  DEPENDS:=@TARGET_rockchiplean +kmod-backlight +kmod-drm-kms-helper \
 	+kmod-multimedia-input
   KCONFIG:= \
 	CONFIG_DRM_ROCKCHIP \
@@ -54,7 +54,7 @@ $(eval $(call KernelPackage,drm-rockchip))
 define KernelPackage/saradc-rockchip
   SUBMENU:=$(IIO_MENU)
   TITLE:=Rockchip SARADC support
-  DEPENDS:=@TARGET_rockchip +kmod-industrialio-triggered-buffer
+  DEPENDS:=@TARGET_rockchiplean +kmod-industrialio-triggered-buffer
   KCONFIG:= \
 	CONFIG_RESET_CONTROLLER=y \
 	CONFIG_ROCKCHIP_SARADC
