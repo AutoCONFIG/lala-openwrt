@@ -87,7 +87,7 @@ define Device/friendlyarm_nanopi-r4s
   SOC := rk3399
   UBOOT_DEVICE_NAME := nanopi-r4s-rk3399
   IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r4s | pine64-bin | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-r8168 -urngd
+  DEVICE_PACKAGES := kmod-r8169 -urngd
 endef
 TARGET_DEVICES += friendlyarm_nanopi-r4s
 
@@ -97,7 +97,7 @@ define Device/friendlyarm_nanopi-r4se
   SOC := rk3399
   UBOOT_DEVICE_NAME := nanopi-r4se-rk3399
   IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r4s | pine64-bin | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-r8168 -urngd
+  DEVICE_PACKAGES := kmod-r8169 -urngd
 endef
 TARGET_DEVICES += friendlyarm_nanopi-r4se
 
@@ -168,7 +168,7 @@ define Device/rongpin_king3399
   SOC := rk3399
   UBOOT_DEVICE_NAME := rongpin-king3399-rk3399
   IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r4s | pine64-bin | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-r8168 -urngd
+  DEVICE_PACKAGES := kmod-r8169 -urngd
 endef
 TARGET_DEVICES += rongpin_king3399
 
@@ -178,7 +178,7 @@ define Device/sharevdi_guangmiao-g4c
   SOC := rk3399
   UBOOT_DEVICE_NAME := guangmiao-g4c-rk3399
   IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r4s | pine64-img | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-r8168 -urngd
+  DEVICE_PACKAGES := kmod-r8169 -urngd
 endef
 TARGET_DEVICES += sharevdi_guangmiao-g4c
 
