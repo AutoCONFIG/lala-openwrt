@@ -274,7 +274,7 @@ define Device/avm_fritzbox-7530
 	DEVICE_ALT0_VENDOR := AVM
 	DEVICE_ALT0_MODEL := FRITZ!Box 7520
 	SOC := qcom-ipq4019
-	DEVICE_PACKAGES := fritz-caldata fritz-tffs-nand
+	DEVICE_PACKAGES := fritz-caldata fritz-tffs-nand ltq-vdsl-vr11-app
 endef
 TARGET_DEVICES += avm_fritzbox-7530
 
@@ -719,6 +719,23 @@ define Device/linksys_mr8300
 	DEVICE_PACKAGES := ath10k-firmware-qca9888-ct kmod-usb-ledtrig-usbport
 endef
 TARGET_DEVICES += linksys_mr8300
+
+define Device/linksys_whw03v2
+	$(call Device/FitzImage)
+	DEVICE_VENDOR := Linksys
+	DEVICE_MODEL := WHW03
+	DEVICE_VARIANT := V2
+	SOC := qcom-ipq4019
+	KERNEL_SIZE := 6144k
+	IMAGE_SIZE := 158720k
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	UBINIZE_OPTS := -E 5    # EOD marks to "hide" factory sig at EOF
+	IMAGES += factory.bin
+	IMAGE/factory.bin  := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi | linksys-image type=WHW03v2
+	DEVICE_PACKAGES := ath10k-firmware-qca9888-ct ipq-wifi-linksys_whw03v2 kmod-leds-pca963x kmod-spi-dev kmod-bluetooth
+endef
+TARGET_DEVICES += linksys_whw03v2
 
 define Device/linksys_whw01
 	$(call Device/FitzImage)
