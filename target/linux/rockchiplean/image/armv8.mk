@@ -17,7 +17,7 @@ define Device/hinlink_common
   SOC := rk3568
   UBOOT_DEVICE_NAME := opc-h68k-rk3568
   IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r5s | pine64-img | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-ata-ahci-platform kmod-mt7921e kmod-r8169 kmod-usb-serial-cp210x wpad-openssl
+  DEVICE_PACKAGES := kmod-ata-ahci-platform kmod-mt7921e kmod-r8125 kmod-usb-serial-cp210x wpad-openssl
 endef
 
 define Device/hinlink_opc-h66k
@@ -37,7 +37,7 @@ define Device/fastrhino_common
   SOC := rk3568
   UBOOT_DEVICE_NAME := r66s-rk3568
   IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r5s | pine64-img | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-r8169
+  DEVICE_PACKAGES := kmod-r8125
 endef
 
 define Device/fastrhino_r66s
@@ -87,7 +87,7 @@ define Device/friendlyarm_nanopi-r4s
   SOC := rk3399
   UBOOT_DEVICE_NAME := nanopi-r4s-rk3399
   IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r4s | pine64-bin | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-r8169 -urngd
+  DEVICE_PACKAGES := kmod-r8168 -urngd
 endef
 TARGET_DEVICES += friendlyarm_nanopi-r4s
 
@@ -97,7 +97,7 @@ define Device/friendlyarm_nanopi-r4se
   SOC := rk3399
   UBOOT_DEVICE_NAME := nanopi-r4se-rk3399
   IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r4s | pine64-bin | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-r8169 -urngd
+  DEVICE_PACKAGES := kmod-r8168 -urngd
 endef
 TARGET_DEVICES += friendlyarm_nanopi-r4se
 
@@ -107,7 +107,7 @@ define Device/friendlyarm_nanopi-r5s
   SOC := rk3568
   UBOOT_DEVICE_NAME := nanopi-r5s-rk3568
   IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r5s | pine64-img | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-r8169 kmod-nvme kmod-scsi-core
+  DEVICE_PACKAGES := kmod-r8125 kmod-nvme kmod-scsi-core
 endef
 TARGET_DEVICES += friendlyarm_nanopi-r5s
 
@@ -137,7 +137,7 @@ define Device/radxa_e25
   DEVICE_DTS := rockchip/rk3568-radxa-e25
   UBOOT_DEVICE_NAME := radxa-e25-rk3568
   IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r5s | pine64-img | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-ata-ahci-platform kmod-r8169
+  DEVICE_PACKAGES := kmod-ata-ahci-platform kmod-r8125
 endef
 TARGET_DEVICES += radxa_e25
 
@@ -168,9 +168,20 @@ define Device/rongpin_king3399
   SOC := rk3399
   UBOOT_DEVICE_NAME := rongpin-king3399-rk3399
   IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r4s | pine64-bin | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-r8169 -urngd
+  DEVICE_PACKAGES := kmod-r8168 -urngd
 endef
 TARGET_DEVICES += rongpin_king3399
+
+define Device/rocktech_mpc1903
+  DEVICE_VENDOR := Rocktech
+  DEVICE_MODEL := MPC1903
+  SOC := rk3399
+  SUPPORTED_DEVICES := rocktech,mpc1903
+  UBOOT_DEVICE_NAME := rocktech-mpc1903-rk3399
+  IMAGE/sysupgrade.img.gz := boot-common | boot-script | pine64-img | gzip | append-metadata
+  DEVICE_PACKAGES := kmod-usb-net-smsc75xx kmod-usb-serial-cp210x -urngd
+endef
+TARGET_DEVICES += rocktech_mpc1903
 
 define Device/sharevdi_guangmiao-g4c
   DEVICE_VENDOR := SHAREVDI
@@ -178,7 +189,7 @@ define Device/sharevdi_guangmiao-g4c
   SOC := rk3399
   UBOOT_DEVICE_NAME := guangmiao-g4c-rk3399
   IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r4s | pine64-img | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-r8169 -urngd
+  DEVICE_PACKAGES := kmod-r8168 -urngd
 endef
 TARGET_DEVICES += sharevdi_guangmiao-g4c
 
