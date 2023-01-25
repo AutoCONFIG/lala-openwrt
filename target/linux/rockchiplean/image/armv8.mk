@@ -137,7 +137,7 @@ define Device/radxa_e25
   DEVICE_DTS := rockchip/rk3568-radxa-e25
   UBOOT_DEVICE_NAME := radxa-e25-rk3568
   IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r5s | pine64-img | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-ata-ahci-platform kmod-r8169
+  DEVICE_PACKAGES := kmod-ata-ahci-platform kmod-r8169 kmod-rfkill
 endef
 TARGET_DEVICES += radxa_e25
 
