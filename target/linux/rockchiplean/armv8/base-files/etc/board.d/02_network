@@ -15,7 +15,6 @@ rockchip_setup_interfaces()
 	friendlyarm,nanopi-r2s|\
 	friendlyarm,nanopi-r4s|\
 	friendlyarm,nanopi-r4se|\
-	rocktech,mpc1903|\
 	sharevdi,guangmiao-g4c|\
 	xunlong,orangepi-r1-plus|\
 	xunlong,orangepi-r1-plus-lts)
@@ -26,6 +25,7 @@ rockchip_setup_interfaces()
 		;;
 	fastrhino,r66s|\
 	firefly,rk3568-roc-pc|\
+	rocktech,mpc1903|\
 	radxa,e25)
 		ucidef_set_interfaces_lan_wan 'eth0' 'eth1'
 		;;
@@ -80,9 +80,9 @@ rockchip_setup_macs()
 	friendlyarm,nanopi-r2c|\
 	friendlyarm,nanopi-r2s|\
 	friendlyarm,nanopi-r5s|\
-	rocktech,mpc1903|\
-	sharevdi,guangmiao-g4c)
-		wan_mac=$(macaddr_generate_from_mmc_cid mmcblk0)
+	sharevdi,guangmiao-g4c|\
+	rocktech,mpc1903)
+		wan_mac=$(macaddr_generate_from_mmc_cid mmcblk1)
 		lan_mac=$(macaddr_add "$wan_mac" +1)
 		;;
 	friendlyarm,nanopi-r4s|\
