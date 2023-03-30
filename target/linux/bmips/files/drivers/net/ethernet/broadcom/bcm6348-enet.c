@@ -128,6 +128,8 @@ struct bcm6348_iudma {
 	unsigned int dma_channels;
 };
 
+int bcm6348_iudma_drivers_register(struct platform_device *pdev);
+
 static inline u32 dma_readl(struct bcm6348_iudma *iudma, u32 off)
 {
 	u32 val;
@@ -269,7 +271,7 @@ static int bcm6348_iudma_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, iudma);
 
-	return 0;
+	return bcm6348_iudma_drivers_register(pdev);
 }
 
 static const struct of_device_id bcm6348_iudma_of_match[] = {
@@ -489,6 +491,11 @@ struct bcm6348_emac {
 
 	/* external mii bus */
 	bool ext_mii;
+
+	/* phy */
+	int old_link;
+	int old_duplex;
+	int old_pause;
 };
 
 static inline void emac_writel(struct bcm6348_emac *emac, u32 val, u32 off)
@@ -968,6 +975,96 @@ static void bcm6348_emac_disable_mac(struct bcm6348_emac *emac)
 	} while (limit--);
 }
 
+/*
+ * set emac duplex parameters
+ */
+static void bcm6348_emac_set_duplex(struct bcm6348_emac *emac, int fullduplex)
+{
+	u32 val;
+
+	val = emac_readl(emac, ENET_TXCTL_REG);
+	if (fullduplex)
+		val |= ENET_TXCTL_FD_MASK;
+	else
+		val &= ~ENET_TXCTL_FD_MASK;
+	emac_writel(emac, val, ENET_TXCTL_REG);
+}
+
+/*
+ * set emac flow control parameters
+ */
+static void bcm6348_emac_set_flow(struct bcm6348_emac *emac, bool rx_en, bool tx_en)
+{
+	struct bcm6348_iudma *iudma = emac->iudma;
+	u32 val;
+
+	val = emac_readl(emac, ENET_RXCFG_REG);
+	if (rx_en)
+		val |= ENET_RXCFG_ENFLOW_MASK;
+	else
+		val &= ~ENET_RXCFG_ENFLOW_MASK;
+	emac_writel(emac, val, ENET_RXCFG_REG);
+
+	dmas_writel(iudma, emac->rx_desc_dma, DMAS_RSTART_REG, emac->rx_chan);
+	dmas_writel(iudma, emac->tx_desc_dma, DMAS_RSTART_REG, emac->tx_chan);
+
+	val = dma_readl(iudma, DMA_CFG_REG);
+	if (tx_en)
+		val |= DMA_CFG_FLOWCH_MASK(emac->rx_chan);
+	else
+		val &= ~DMA_CFG_FLOWCH_MASK(emac->rx_chan);
+	dma_writel(iudma, val, DMA_CFG_REG);
+}
+
+/*
+ * adjust emac phy
+ */
+static void bcm6348_emac_adjust_phy(struct net_device *ndev)
+{
+	struct phy_device *phydev = ndev->phydev;
+	struct bcm6348_emac *emac = netdev_priv(ndev);
+	struct platform_device *pdev = emac->pdev;
+	struct device *dev = &pdev->dev;
+	bool status_changed = false;
+
+	if (emac->old_link != phydev->link) {
+		status_changed = true;
+		emac->old_link = phydev->link;
+	}
+
+	if (phydev->link && phydev->duplex != emac->old_duplex) {
+		bcm6348_emac_set_duplex(emac, phydev->duplex == DUPLEX_FULL);
+		status_changed = true;
+		emac->old_duplex = phydev->duplex;
+	}
+
+	if (phydev->link && phydev->pause != emac->old_pause) {
+		bool rx_pause_en, tx_pause_en;
+
+		if (phydev->pause) {
+			rx_pause_en = true;
+			tx_pause_en = true;
+		} else {
+			rx_pause_en = false;
+			tx_pause_en = false;
+		}
+
+		bcm6348_emac_set_flow(emac, rx_pause_en, tx_pause_en);
+		status_changed = true;
+		emac->old_pause = phydev->pause;
+	}
+
+	if (status_changed)
+		dev_info(dev, "%s: phy link %s %s/%s/%s/%s\n",
+			 ndev->name,
+			 phydev->link ? "UP" : "DOWN",
+			 phy_modes(phydev->interface),
+			 phy_speed_to_str(phydev->speed),
+			 phy_duplex_to_str(phydev->duplex),
+			 phydev->pause ? "rx/tx" : "off");
+}
+
+
 static int bcm6348_emac_open(struct net_device *ndev)
 {
 	struct bcm6348_emac *emac = netdev_priv(ndev);
@@ -1133,6 +1230,9 @@ static int bcm6348_emac_open(struct net_device *ndev)
 	dmac_writel(iudma, DMAC_IR_PKTDONE_MASK,
 		    DMAC_IRMASK_REG, emac->tx_chan);
 
+	if (ndev->phydev)
+		phy_start(ndev->phydev);
+
 	netif_carrier_on(ndev);
 	netif_start_queue(ndev);
 
@@ -1171,6 +1271,9 @@ out_freeirq_rx:
 	free_irq(emac->irq_rx, ndev);
 
 out_freeirq:
+	if (ndev->phydev)
+		phy_disconnect(ndev->phydev);
+
 	return ret;
 }
 
@@ -1183,6 +1286,8 @@ static int bcm6348_emac_stop(struct net_device *ndev)
 
 	netif_stop_queue(ndev);
 	napi_disable(&emac->napi);
+	if (ndev->phydev)
+		phy_stop(ndev->phydev);
 	del_timer_sync(&emac->rx_timeout);
 
 	/* mask all interrupts */
@@ -1454,6 +1559,10 @@ static int bcm6348_emac_probe(struct platform_device *pdev)
 	emac->tx_ring_size = ENET_DEF_TX_DESC;
 	emac->copybreak = ENET_DEF_CPY_BREAK;
 
+	emac->old_link = 0;
+	emac->old_duplex = -1;
+	emac->old_pause = -1;
+
 	of_get_mac_address(node, ndev->dev_addr);
 	if (is_valid_ether_addr(ndev->dev_addr)) {
 		dev_info(dev, "mtd mac %pM\n", ndev->dev_addr);
@@ -1543,6 +1652,11 @@ static int bcm6348_emac_probe(struct platform_device *pdev)
 
 	netif_carrier_off(ndev);
 
+	ndev->phydev = of_phy_get_and_connect(ndev, node,
+					      bcm6348_emac_adjust_phy);
+	if (IS_ERR_OR_NULL(ndev->phydev))
+		dev_warn(dev, "PHY not found!\n");
+
 	dev_info(dev, "%s at 0x%px, IRQ %d\n", ndev->name, emac->base,
 		 ndev->irq);
 
@@ -1591,4 +1705,15 @@ static struct platform_driver bcm6348_emac_driver = {
 	.probe	= bcm6348_emac_probe,
 	.remove	= bcm6348_emac_remove,
 };
-module_platform_driver(bcm6348_emac_driver);
+
+int bcm6348_iudma_drivers_register(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	int ret;
+
+	ret = platform_driver_register(&bcm6348_emac_driver);
+	if (ret)
+		dev_err(dev, "error registering emac driver!\n");
+
+	return ret;
+}
